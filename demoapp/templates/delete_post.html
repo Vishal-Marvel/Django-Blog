@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Delete Blog Post{%endblock%}
+{% block content %}
+
+{% if user.is_authenticated %}
+    {% if user.id  == post.author.id %}
+        <h1>Delete Post...{{ post.title }}</h1>
+        <br/><br/>
+
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token %}
+                <strong>Are You sure?</strong><br/><br/>
+                <button class="btn btn-secondary">Delete Post!</button>
+                <a href="{% url 'article-detail' post.pk %}" class="btn btn-secondary">Back</a>
+        </div>
+    {% else %}
+        <h3>You are not allowed here!</h3><h5> (And you know it...)</h5>
+
+
+    {% endif %}
+
+{% else %}
+    <h3>You are not allowed here!</h3><h5> (And you know it...)</h5>
+    <br/>
+    Click to <a href="{% url 'login' %}" >Login</a>
+
+{% endif %}
+{% endblock %}

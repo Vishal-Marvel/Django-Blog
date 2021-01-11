@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Posts</h1>
+<ul>
+<br>
+
+{% if object_list %}
+{% for post in object_list %}
+    <li><a href="{%url 'article-detail' post.pk %}">{{ post.title }}</a>
+        {% if not post.category == 'Uncategorised' %}
+        - <a href="{%url 'category' post.category|slugify %}"> {{post.category }}</a>
+        {% else %}
+        - {{post.category }}
+        {% endif %}
+        - {{ post.author.first_name }}
+        {{ post.author.last_name }}
+        - {{ post.post_date}}
+        {% if user.is_authenticated %}
+            {% if user.id  == post.author.id %}
+            - <small>
+                <a href="{%url 'update_post' post.pk %}">(Edit)</a> -
+                <a href="{%url 'delete_post' post.pk %}">(Delete)</a>
+
+            </small>
+            {% endif %}
+        {% endif %}
+        <br/><br/>
+        </li>
+{% endfor %}
+{% else %}
+    {% if user.is_authenticated %}
+        No Posts yet... <a href="{% url 'add_post' %}">Add</a> it
+    {% else %}
+        No Posts yet... Add it by <a href="{% url 'login' %}">Logging</a> in
+    {% endif %}
+
+</ul>
+{% endif %}
+<br><br>
+{% endblock %}

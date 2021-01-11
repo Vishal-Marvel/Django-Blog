@@ -1,0 +1,196 @@
+ {% extends 'base.html' %}
+{% block title %}{{ post.title_tag }}{%endblock%}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+#myDIV {
+  width: 100%;
+  display: none;
+}
+
+div.a {
+  width: 750px;
+  word-wrap: break-word;
+}
+
+.fa {
+  padding: 5px;
+  font-size: 25px;
+}
+
+.fa-facebook {
+  color: black;
+}
+
+.fa-twitter {
+  color: black;
+}
+
+.fa-youtube {
+  color: black;
+}
+
+.fa-instagram {
+  color: black;
+}
+
+</style>
+
+<h1>{{ post.title }}</h1>
+    <h7>
+        Category - 
+    {% if not post.category == 'Uncategorised' %}
+        <a href="{%url 'category' post.category|slugify %}"> {{post.category }}</a>
+    {% else %}
+        {{post.category }}
+    {% endif %}</h7>
+        <br><br>
+    <small>By: <strong>{{ post.author.first_name }}{{ post.author.last_name }}</strong> - {{ post.post_date}} 
+    {% if user.is_authenticated %}
+        {% if user.id  == post.author.id %}
+            
+                - <a href="{%url 'update_post' post.pk %}">(Edit)</a> -
+                <a href="{%url 'delete_post' post.pk %}">(Delete)</a>
+
+            </small>
+
+        {% endif%}
+
+    {% endif %}
+<hr>
+
+{% if post.header_image %}
+<img src="{{post.header_image.url }}" width=300 height=250>
+{% endif %}
+<br/>
+{% if post.body %}
+ <div class="a">
+       {{ post.body|safe }}
+ </div>
+
+
+{% else %}
+    No body for this blog
+{% endif %}
+
+<hr>
+<br/>
+<form action="{% url 'like_post' post.pk %}" method="POST">
+    {% csrf_token %}
+    {% if user.is_authenticated %}
+        {% if liked %}
+            <h5><button type="submit" , name="post_id" , value="{{ post.id }}" , class="fa fa-thumbs-down"></button> - {{ total_likes }} Likes</h5>
+        {% else%}
+            <h5><button type="submit" name="post_id"  value="{{ post.id }}" class="fa fa-thumbs-up"></button> - {{ total_likes }} Likes</h5>
+
+        {%endif%}
+    {% else %}
+        <h6><a href="{% url 'login' %}" >Login</a> to like - {{ total_likes }} Likes</h6>
+
+    {%endif%}
+
+    </form>
+
+
+
+<br/><hr>
+
+<br/>
+
+<h2><button onclick="myFunction()" class="btn btn-primary">Comments</button></h2>
+<div id="myDIV" >
+Total Comments - <strong class="text-secondary">{{ object.number_of_comments }} Comment{{ object.number_of_comments|pluralize }}</strong>
+
+ <br>
+{% if not comments.all %}
+
+
+{% else %}
+    <br/>
+
+    {% for comment in comments %}
+        <li>
+            <strong>
+
+
+            {{ comment.date_posted }}</strong>
+            <br/>
+            {{ comment.content }}
+            <br/>
+        </li>
+      {% endfor %}
+{% endif %}
+ <br>
+<form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ comment_form }}
+
+        <br>
+      <button class="btn btn-info" type="submit">Add comment <i class="fa fa-comments"></i></button>
+    </div>
+  </form>
+</div>
+<script>
+function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script> 
+<br/><br/><br/>
+{% if post.author.profile.id %}
+<div class="card mb-3" >
+  <div class="row g-0">
+    <div class="col-md-2">
+        {% if post.author.profile.profile_pic %}
+            <img src="{{ post.author.profile.profile_pic.url}}" class="card-img">
+
+        {% else %}
+            <img src="{% static 'demoapp/images/Default-Profile.png'%}" class="card-img">
+        {% endif %}
+    </div>
+    <div class="col-md-10">
+      <div class="card-body">
+        <h5 class="card-title">{{ post.author.first_name }}
+            {{ post.author.last_name }}</h5>
+        <p class="small text-muted">
+
+            <a href="{% url 'show_profile' post.author.profile.id %}">Profile Page</a>
+
+            {% if post.author.profile.website_url%}
+                |
+                <a href="{{ post.author.profile.website_url}}">
+                Website</a>
+            <br>
+            {%endif%}
+            {% if post.author.profile.youtube_channel_url %}
+                <a href="{{ post.author.profile.youtube_channel_url}}" class="fa fa-youtube"></a> 
+            {%endif%}
+            {% if post.author.profile.twitter_url %}
+                <a href="{{ post.author.profile.twitter_url}}" class="fa fa-twitter"></a> 
+            {%endif%}
+            {% if post.author.profile.facebook_url%}
+                <a href="{{ post.author.profile.facebook_url}}" class="fa fa-facebook"></a> 
+            {%endif%}
+            {% if post.author.profile.instagram_url %}
+                <a href="{{ post.author.profile.instagram_url}}" class="fa fa-instagram"></a> 
+            {%endif%}
+
+        </p>
+        <p class="card-text">{{ post.author.profile.bio|safe }}
+        </p>
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<br/><br/>
+
+{% endblock %}
